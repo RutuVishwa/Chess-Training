@@ -17,7 +17,7 @@ import { Brain, Target, Trophy } from "lucide-react"
 // Create a client component for the main content
 function TrainingContent() {
   const searchParams = useSearchParams()
-  const initialTab = searchParams.get('tab') || 'play'
+  const initialTab = searchParams.get('tab') || 'puzzles'
   
   const [game, setGame] = useState(new Chess())
   const [gameHistory, setGameHistory] = useState<string[]>([])
@@ -232,7 +232,7 @@ function TrainingContent() {
           </Card>
         </div>
 
-        <Tabs defaultValue="ai">
+        <Tabs defaultValue="puzzles">
           <div className="flex flex-col space-y-4">
             <TabsList>
               <TabsTrigger value="ai">

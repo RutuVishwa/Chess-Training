@@ -109,7 +109,7 @@ export function PuzzleTrainer({ onPuzzleSolved }: PuzzleTrainerProps) {
       setMessage("Find the best move!")
       setLoading(false)
     }
-  }, [])
+  }, [puzzles])
 
   useEffect(() => {
     filterPuzzles()
@@ -146,26 +146,17 @@ export function PuzzleTrainer({ onPuzzleSolved }: PuzzleTrainerProps) {
 
       setPuzzles(filtered)
       if (filtered.length > 0) {
-        loadPuzzle(filtered[0])
+        const puzzle = filtered[0]
+        setCurrentPuzzle(puzzle)
+        setGame(new Chess(puzzle.fen))
+        setStartTime(Date.now())
+        setMessage("Find the best move!")
       }
     } catch (error) {
       console.error("Failed to filter puzzles:", error)
     } finally {
       setLoading(false)
     }
-  }
-
-  const loadPuzzle = (puzzle: any) => {
-    setCurrentPuzzle(puzzle)
-    setGame(new Chess(puzzle.fen))
-    setSolutionIndex(0)
-    setSolved(false)
-    setFailed(false)
-    setSelectedSquare(null)
-    setStartTime(Date.now())
-    setElapsedTime(0)
-    setMessage("Find the best move!")
-    setShowHint(false)
   }
 
   const handleSquareClick = (square: string) => {
@@ -282,40 +273,79 @@ export function PuzzleTrainer({ onPuzzleSolved }: PuzzleTrainerProps) {
         </div>
 
         {/* Current Puzzle */}
-        {currentPuzzle && game && (
-          <div className="relative">
-            <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-lg">
-              {/* Puzzle Header */}
+        <div className="relative">
+          <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-lg">
+            {currentPuzzle && (
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
                 <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-2 rounded-full shadow-lg flex items-center gap-3">
-                  <div className="text-white font-medium">{currentPuzzle?.title}</div>
+                  <div className="text-white font-medium">{currentPuzzle.title}</div>
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="bg-white/10 text-white border-white/20">
-                      {currentPuzzle?.difficulty}
+                      {currentPuzzle.difficulty}
                     </Badge>
                     <Badge variant="outline" className="bg-white/10 text-white border-white/20">
-                      {currentPuzzle?.theme}
+                      {currentPuzzle.theme}
                     </Badge>
                   </div>
                 </div>
               </div>
+            )}
 
-              <div className="p-6 pt-8">
-                {/* Chess Board */}
-                <div className="flex justify-center mb-6">
-                  <div className="rounded-xl overflow-hidden shadow-2xl">
+            <div className="p-6 pt-8">
+              {/* Chess Board */}
+              <div className="flex justify-center mb-6">
+                <div className="w-full max-w-[600px] aspect-square rounded-xl overflow-hidden shadow-2xl">
+                  {loading ? (
+                    <div className="w-full h-full bg-slate-800 animate-pulse" />
+                  ) : game && (
                     <ChessBoard
                       position={game.fen()}
                       onSquareClick={handleSquareClick}
                       selectedSquare={selectedSquare}
                       isPuzzleMode={true}
                     />
-                  </div>
+                  )}
                 </div>
+              </div>
+
+              {/* Controls */}
+              <div className="flex justify-center gap-4">
+                <Button 
+                  onClick={() => {
+                    if (!currentPuzzle) return;
+                    setGame(new Chess(currentPuzzle.fen));
+                    setSolutionIndex(0);
+                    setSolved(false);
+                    setFailed(false);
+                    setSelectedSquare(null);
+                  }} 
+                  variant="outline"
+                  className="bg-slate-700/50 hover:bg-slate-600/50 text-white border-slate-600 hover:border-slate-500 flex items-center gap-2"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Reset
+                </Button>
+                <Button 
+                  onClick={() => {
+                    if (!currentPuzzle) return;
+                    const currentIndex = puzzles.findIndex(p => p.id === currentPuzzle.id)
+                    const nextPuzzle = puzzles[(currentIndex + 1) % puzzles.length]
+                    setCurrentPuzzle(nextPuzzle)
+                    setGame(new Chess(nextPuzzle.fen))
+                    setSolutionIndex(0)
+                    setSolved(false)
+                    setFailed(false)
+                    setSelectedSquare(null)
+                  }} 
+                  disabled={puzzles.length <= 1}
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700"
+                >
+                  Next Puzzle
+                </Button>
               </div>
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   )

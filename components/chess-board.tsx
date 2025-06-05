@@ -46,18 +46,20 @@ const pieceSymbols: { [key: string]: string } = {
 
 // Add new components at the top
 const MoveLegend = () => (
-  <div className="absolute top-2 right-2 bg-slate-900/90 p-2 rounded-lg shadow-lg text-xs sm:text-sm space-y-1 text-white border border-slate-700">
-    <div className="flex items-center gap-2">
-      <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-      <span>Best Move</span>
-    </div>
-    <div className="flex items-center gap-2">
-      <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
-      <span>Good Move</span>
-    </div>
-    <div className="flex items-center gap-2">
-      <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-      <span>Risky Move</span>
+  <div className="mt-4 w-full flex justify-center">
+    <div className="bg-slate-900/90 p-3 rounded-lg shadow-lg text-xs sm:text-sm flex flex-wrap gap-4 justify-center items-center border border-slate-700">
+      <div className="flex items-center gap-2">
+        <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+        <span className="text-white">Best Move</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
+        <span className="text-white">Good Move</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+        <span className="text-white">Risky Move</span>
+      </div>
     </div>
   </div>
 )
@@ -230,11 +232,10 @@ export function ChessBoard({ position, onSquareClick, selectedSquare, lastMove, 
   }, [position, isPuzzleMode])
 
   return (
-    <div className="w-full bg-slate-900">
-      <MoveLegend />
-      <div className="relative w-full" style={{ paddingBottom: '100%' }}>
-        <div className="absolute inset-0">
-          <div className="w-full h-full border-4 border-[#8B4513] rounded-lg overflow-hidden">
+    <div className="inline-block w-full max-w-[600px] mx-auto">
+      <div className="bg-slate-900 rounded-lg p-4">
+        <div className="aspect-square relative">
+          <div className="absolute inset-0 border-4 border-[#8B4513] rounded-lg overflow-hidden">
             <div className="w-full h-full grid grid-cols-8">
               {board.map((row, rowIndex) =>
                 row.map((piece, colIndex) => {
@@ -245,13 +246,14 @@ export function ChessBoard({ position, onSquareClick, selectedSquare, lastMove, 
                   const isHovered = hoveredSquare === squareName
                   const hasMovablePiece = piece && piece[0] === currentTurn
                   
+                  // Get move quality for this square
                   const moveEval = evaluatedMoves.find(m => m.square === squareName)
                   
                   return (
                     <div
                       key={squareName}
                       className={cn(
-                        "relative w-full h-0 pt-[100%]",
+                        "relative w-full h-full flex items-center justify-center select-none transition-colors",
                         isLight ? "bg-[#E8D0AA]" : "bg-[#8B4513]",
                         isSelected && "ring-2 ring-blue-400/50 ring-inset",
                         isValidTarget && "ring-2 ring-green-400/50 ring-inset",
@@ -287,7 +289,9 @@ export function ChessBoard({ position, onSquareClick, selectedSquare, lastMove, 
             </div>
           </div>
         </div>
+        <MoveLegend />
       </div>
+      
       {!isPuzzleMode && showGameOver && gameWinner && (
         <GameOverPopup winner={gameWinner} onClose={() => setShowGameOver(false)} />
       )}
