@@ -9,7 +9,10 @@ interface ChessBoardProps {
   onSquareClick: (square: string) => void
   selectedSquare: string | null
   lastMove?: string
+<<<<<<< HEAD
   isPuzzleMode?: boolean
+=======
+>>>>>>> 85a862c625de974b52fe3668eedb442715d00c31
 }
 
 type MoveQuality = 'best' | 'average' | 'worst'
@@ -85,7 +88,11 @@ const GameOverPopup = ({ winner, onClose }: GameOverPopupProps) => (
   </div>
 )
 
+<<<<<<< HEAD
 export function ChessBoard({ position, onSquareClick, selectedSquare, lastMove, isPuzzleMode = false }: ChessBoardProps) {
+=======
+export function ChessBoard({ position, onSquareClick, selectedSquare, lastMove }: ChessBoardProps) {
+>>>>>>> 85a862c625de974b52fe3668eedb442715d00c31
   const [draggedPiece, setDraggedPiece] = useState<string | null>(null)
   const [hoveredSquare, setHoveredSquare] = useState<string | null>(null)
   const [evaluatedMoves, setEvaluatedMoves] = useState<MoveEvaluation[]>([])
@@ -212,6 +219,7 @@ export function ChessBoard({ position, onSquareClick, selectedSquare, lastMove, 
     }
   }, [selectedSquare, position])
 
+<<<<<<< HEAD
   // Add effect to check for game over - only in non-puzzle mode
   useEffect(() => {
     if (!isPuzzleMode) {
@@ -290,6 +298,91 @@ export function ChessBoard({ position, onSquareClick, selectedSquare, lastMove, 
       </div>
       {!isPuzzleMode && showGameOver && gameWinner && (
         <GameOverPopup winner={gameWinner} onClose={() => setShowGameOver(false)} />
+=======
+  // Add effect to check for game over
+  useEffect(() => {
+    const game = new Chess(position)
+    if (game.isGameOver()) {
+      let winner: 'white' | 'black' | 'draw'
+      if (game.isDraw()) {
+        winner = 'draw'
+      } else {
+        // If it's checkmate and it's black's turn, white won (and vice versa)
+        winner = game.turn() === 'b' ? 'white' : 'black'
+      }
+      setGameWinner(winner)
+      setShowGameOver(true)
+    }
+  }, [position])
+
+  return (
+    <div className="inline-block w-full max-w-[600px] mx-auto bg-slate-900">
+      <MoveLegend />
+      <div className="aspect-square relative">
+        <div className="absolute inset-0 border-4 border-[#8B4513] rounded-lg overflow-hidden">
+          <div className="w-full h-full grid grid-cols-8">
+            {board.map((row, rowIndex) =>
+              row.map((piece, colIndex) => {
+                const squareName = getSquareName(rowIndex, colIndex)
+                const isLight = isLightSquare(rowIndex, colIndex)
+                const isSelected = selectedSquare === squareName
+                const isValidTarget = validMoves.includes(squareName)
+                const isHovered = hoveredSquare === squareName
+                const hasMovablePiece = piece && piece[0] === currentTurn
+                
+                // Get move quality for this square
+                const moveEval = evaluatedMoves.find(m => m.square === squareName)
+                
+                return (
+                  <div
+                    key={squareName}
+                    className={cn(
+                      "relative w-full h-full flex items-center justify-center select-none transition-colors",
+                      isLight ? "bg-[#E8D0AA]" : "bg-[#8B4513]",
+                      isSelected && "ring-2 ring-blue-400/50 ring-inset",
+                      isValidTarget && "ring-2 ring-green-400/50 ring-inset",
+                      isHovered && hasMovablePiece && "brightness-110",
+                      "cursor-pointer"
+                    )}
+                    onClick={() => onSquareClick(squareName)}
+                    onMouseEnter={() => setHoveredSquare(squareName)}
+                    onMouseLeave={() => setHoveredSquare(null)}
+                  >
+                    {piece && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className={cn(
+                          "transform text-3xl sm:text-4xl select-none drop-shadow-md",
+                          piece[0] === "w" ? "text-white" : "text-slate-900"
+                        )}>
+                          {pieceSymbols[piece]}
+                        </span>
+                      </div>
+                    )}
+                    {moveEval && (
+                      <div className={cn(
+                        "absolute w-2.5 h-2.5 rounded-full top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-75",
+                        moveEval.quality === 'best' ? "bg-blue-400" :
+                        moveEval.quality === 'average' ? "bg-emerald-400" :
+                        "bg-red-400"
+                      )} />
+                    )}
+                  </div>
+                )
+              })
+            )}
+          </div>
+        </div>
+      </div>
+      
+      {showGameOver && gameWinner && (
+        <GameOverPopup 
+          winner={gameWinner} 
+          onClose={() => {
+            setShowGameOver(false)
+            setGameWinner(null)
+          }} 
+        />
+>>>>>>> 85a862c625de974b52fe3668eedb442715d00c31
       )}
     </div>
   )
